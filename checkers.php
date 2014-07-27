@@ -2,17 +2,21 @@
 	/*
 	 * Checkers uptime monitor created by Josh (AKA gravypod) Katz (7/26/14 US)
 	 */
-	echo("Loading Configs\n");
+	 
+	
+	global $date;
+	$date = date("l jS F \@ g:i a", time()); // Format a date of the check.
+	
+	echo("[$date] Loading Configs\n");
 	require_once("./config.php");
 	
 	date_default_timezone_set(TIMEZONE);
 	
+	require_once("./libs/convenience.php");
 	require_once('./libs/PHPMailerAutoload.php');
 	
 	$emails = loadJson(EMAILS); // Who do we send emails to?
 	
-	global $date;
-	$date = date("l jS F \@ g:i a", time()); // Format a date of the check.
 	
 	$plugins = glob("./plugins/*.php");
 	$state = loadState();
@@ -27,7 +31,7 @@
 		
 		if ($returned === false) {
 			
-			echo("Service $baseName is ONLINE\n");
+			echo("[$date] Service $baseName is ONLINE\n");
 			
 			if ($reported) {
 				$offline = $state[$baseName];
@@ -38,7 +42,7 @@
 			
 		} else {
 			
-			echo("Service $baseName is OFFLINE\n");
+			echo("[$date] Service $baseName is OFFLINE\n");
 			
 			if (!$reported) {
 				send($returned, $emails); // inform about outage
@@ -92,13 +96,11 @@
 		$mail->Body = $message;
 		$mail->AltBody = $message;
 		foreach ($addresses as $a) {
-			echo("Sending to $a\n");
 			$mail->addAddress($a);  // Add a recipient
 		}
 		if(!$mail->send()) {
-			echo 'Message could not be sent.';
-			echo 'Mailer Error: ' . $mail->ErrorInfo;
-			exit;
+			echo "[$date] Message could not be sent.\n";
+			echo "[$date] Mailer Error: " . $mail->ErrorInfo;
 		}
 	}
 	
