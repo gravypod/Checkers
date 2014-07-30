@@ -1,4 +1,4 @@
-Checkers
+Checkers - My Log-Cat
 ========
 
 A simple script to monitor uptimes of services.

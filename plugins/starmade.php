@@ -5,15 +5,37 @@
 	 * Function with the same name as the file.
 	 */
 	function starmade() { // Returns false if service online, a string if we want to send an email.
+		
+		$online = starmade_ping();
+		
+		if (!$online) { // Did the server respond to the ping?
+			for ($i = 1; $i < 2; $i++) { // Lets try a few more times if it didn't.
+				if (starmade_ping()) { // Yay, we are back online.
+					return false; // Tell Checkers nothing is needed
+				}
+			}
+		} else {
+			return false; // The server was online from the start. Everything is a-ok
+		}
+		
+		/*
+		 * Shits on fire from this point on.
+		 */
+		
+		global $date; // Constant provided for message 
+		return "$date downtime. Shits on fire!"; // Message will be sent
+	}
+	
+	function starmade_ping() {
 		$q = new StarMadeQuery(); // Code to check uptime of SM.
 		try {
-			$q->Connect("sm.elwyneternity.com");
-			return false;
+			$q->Connect("sm.elwyneternity.com", 4242, 12); // Port and timeout. 
+			return true;
 		} catch (StarMadeQueryException $e) { // Starmade is offline?
-			global $date; // Constant provided for message
-			return "$date downtime. Shits on fire!"; // Message will be sent
+			return false;
 		}
 	}
+	
 	class StarMadeQueryException extends Exception {
 		// Exception thrown by StarMadeQuery class
 	}
